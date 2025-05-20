@@ -17,7 +17,7 @@ class YoloInnocentNode(Node):
         self.pub = self.create_publisher(Int32, 'innocent', 10)
 
         self.br = CvBridge()
-        self.model = YOLO('yolov8x.pt')
+        self.model = YOLO('yolov8s.pt')
         self.get_logger().info(f'Listening on "{image_topic}"')
 
     def image_callback(self, msg: Image):
@@ -35,6 +35,9 @@ class YoloInnocentNode(Node):
             self.pub.publish(out)
             self.get_logger().info(f'Detected {count} innocent friend(s)')
         else:
+            out = Int32()
+            out.data = 0
+            self.pub.publish(out)
             self.get_logger().info(f'No innocents detected')
 
 
