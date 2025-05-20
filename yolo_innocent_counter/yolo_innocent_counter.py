@@ -27,7 +27,7 @@ class YoloInnocentNode(Node):
             self.get_logger().error(f'CVBridge: {e}')
             return
 
-        results = self.model.predict(frame, classes=[77], verbose=False)
+        results = self.model.predict(frame, classes=[0, 77], verbose=False)
         if results[0].boxes:
             count = len(results[0].boxes)
             out = Int32()
