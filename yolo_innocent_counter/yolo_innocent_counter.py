@@ -6,18 +6,18 @@ from std_msgs.msg import Int32
 from cv_bridge import CvBridge, CvBridgeError
 from ultralytics import YOLO
 
-class YoloPersonNode(Node):
+class YoloInnocentNode(Node):
     def __init__(self):
-        super().__init__('yolo_person_counter')
+        super().__init__('yolo_innocent_counter')
         self.declare_parameter('image_topic', '/camera/image_raw')
         image_topic = self.get_parameter('image_topic').get_parameter_value().string_value
 
         self.sub = self.create_subscription(
             Image, image_topic, self.image_callback, 10)
-        self.pub = self.create_publisher(Int32, 'person', 10)
+        self.pub = self.create_publisher(Int32, 'innocent', 10)
 
         self.br = CvBridge()
-        self.model = YOLO('yolov8n.pt')
+        self.model = YOLO('yolov8x.pt')
         self.get_logger().info(f'Listening on "{image_topic}"')
 
     def image_callback(self, msg: Image):
@@ -27,16 +27,20 @@ class YoloPersonNode(Node):
             self.get_logger().error(f'CVBridge: {e}')
             return
 
-        results = self.model.predict(frame, classes=[0], verbose=False)
-        count = len(results[0].boxes)
-        out = Int32()
-        out.data = count
-        self.pub.publish(out)
-        self.get_logger().info(f'Detected {count} person(s)')
+        results = self.model.predict(frame, classes=[77], verbose=False)
+        if results[0].boxes:
+            count = len(results[0].boxes)
+            out = Int32()
+            out.data = count
+            self.pub.publish(out)
+            self.get_logger().info(f'Detected {count} innocent friend(s)')
+        else:
+            self.get_logger().info(f'No innocents detected')
+
 
 def main(args=None):
     rclpy.init(args=args)
-    node = YoloPersonNode()
+    node = YoloInnocentNode()
     try:
         rclpy.spin(node)
     finally:

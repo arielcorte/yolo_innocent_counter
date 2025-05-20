@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(yolo_person_counter)
+project(yolo_innocent_counter)
 
 find_package(ament_python REQUIRED)
 find_package(rclpy REQUIRED)
