@@ -23,6 +23,8 @@ setup(
             'yolo_innocent_counter.yolo_innocent_counter:main',
             'camera_streamer = '
 +           'yolo_innocent_counter.camera_streamer:main',
+            'camera_streamer_perf = '
++           'yolo_innocent_counter.camera_streamer_perf:main',
         ],
     },
 )
