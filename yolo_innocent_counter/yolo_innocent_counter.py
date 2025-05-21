@@ -14,7 +14,8 @@ class YoloInnocentNode(Node):
 
         self.sub = self.create_subscription(
             Image, image_topic, self.image_callback, 10)
-        self.pub = self.create_publisher(Int32, 'innocent', 10)
+        self.person_pub = self.create_publisher(Int32, 'person', 10)
+        self.teddy_pub = self.create_publisher(Int32, 'teddy_bear', 10)
 
         self.br = CvBridge()
         self.model = YOLO('yolov8s.pt')
@@ -28,17 +29,30 @@ class YoloInnocentNode(Node):
             return
 
         results = self.model.predict(frame, classes=[0, 77], verbose=False)
-        if results[0].boxes:
-            count = len(results[0].boxes)
-            out = Int32()
-            out.data = count
-            self.pub.publish(out)
-            self.get_logger().info(f'Detected {count} innocent friend(s)')
-        else:
-            out = Int32()
-            out.data = 0
-            self.pub.publish(out)
-            self.get_logger().info(f'No innocents detected')
+
+        boxes = results[0].boxes
+
+        # initialize counts
+        person_count = 0
+        teddy_count = 0
+
+        if boxes:
+            # boxes.cls is a tensor of class‐ids; convert to numpy ints
+            cls_ids = boxes.cls
+            person_count = int((cls_ids == 0).sum())
+            teddy_count = int((cls_ids == 77).sum())
+
+        # publish person count
+        person_msg = Int32()
+        person_msg.data = person_count
+        self.person_pub.publish(person_msg)
+        self.get_logger().info(f'Detected {person_count} person(s)')
+
+        # publish teddy‐bear count
+        teddy_msg = Int32()
+        teddy_msg.data = teddy_count
+        self.teddy_pub.publish(teddy_msg)
+        self.get_logger().info(f'Detected {teddy_count} teddy bear(s)')
 
 
 def main(args=None):
