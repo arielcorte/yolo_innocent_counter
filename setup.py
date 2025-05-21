@@ -25,6 +25,8 @@ setup(
 +           'yolo_innocent_counter.camera_streamer:main',
             'camera_streamer_perf = '
 +           'yolo_innocent_counter.camera_streamer_perf:main',
+            'camera_streamer_rpi = '
++           'yolo_innocent_counter.camera_streamer_rpi:main',
         ],
     },
 )
